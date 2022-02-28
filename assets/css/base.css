@@ -1,0 +1,42 @@
+
+   /*Animation*/
+  @keyframes fadeIn{
+    from{
+        opacity: 0;
+    }
+  
+    to{
+        opacity: 1;
+    }
+  }
+  
+  @keyframes growth{
+    from{
+        transform: scale(var(--growth-from));
+    }
+  
+    to{
+        transform: scale(var(--growth-to));
+    }
+  }
+  
+  @media only screen and (max-width:1182px){
+    .home-product-item{
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .grid_column-2-4{
+        width: 50%;
+    }
+  }
+
+  
+  @keyframes moveleft {
+    from {right: 0px;}
+    to {right: 15%;}
+  }
+  @keyframes moveright {
+    from {right: 15%;}
+    to {right: 0;}
+  }
