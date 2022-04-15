@@ -1,9 +1,11 @@
 <?php 
 include_once '../admin/config.php';
+
 session_start();
-$query_book = mysqli_query($conn,"SELECT * from product order by id_product");
+
 $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegroup");
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,9 +27,14 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
      <link href="../assets/css/style.css.map" rel="stylesheet" />
     <!-- Animation css-->
     <link href="../assets/css/base.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Login Validator -->
+    <script src="../assets/script/validator.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
 </head>
 <body>
     <div class="hero_area">
@@ -47,35 +54,93 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
               <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                   <li class="nav-item active">
-                    <a class="nav-link pl-lg-0" href="index.html">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link pl-lg-0" href="index.php" id="home">Home <span class="sr-only">(current)</span></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="about.html"> About</a>
+                    <a class="nav-link" style="cursor: pointer;" id="about"> About</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="categories.html">Categories</a>
+                    <a class="nav-link" style="cursor: pointer;" id="Blog"> Blog </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="blog.html"> Blog </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="contact.html">Contact Us</a>
+                    <a class="nav-link" style="cursor: pointer;scroll-behavior: smooth;" id="contact">Contact Us</a>
                   </li>
                   
                 </ul>
-                <from class="search_form">
-                  <input type="text" class="form-control" placeholder="Search here...">
+                <form action="./search.php" method="POST" enctype="multipart/form-data" class="search_form">
+                  <input type="text" class="form-control" placeholder="Nhập tên sản phẩm ...." name="search" >
                   <button class="" type="submit">
                     <i class="fa fa-search" aria-hidden="true"></i>
                   </button>
-                </from>
-               <ul class="navbar-nav" style="margin-left:1%">
+                </form>
+               <ul class="navbar-nav" style=" margin-left: 1.5%;margin-right: 1%;">
                    <li class="nav-item">
-                    <div class="header_user-wrap">
-                          <a href="" data-toggle="modal" data-target="#exampleModal">Đăng Nhập</a>
-                          <span></span>
-                          <a href="">Đăng Ký</a>
-                    </div>
+                   <?php 
+                      if(!isset($_SESSION['id_customer']) && !isset($_SESSION['id_staff'])){
+                    ?>
+                        <div class="header_user-wrap">
+                              <a href="" data-toggle="modal" data-target="#exampleModal">Đăng Nhập</a>
+                              <span></span>
+                              <a href="" data-toggle="modal" data-target="#exampleModalS">Đăng Ký</a>
+                        </div>
+                    <?php }else if(isset($_SESSION['id_staff'])){ 
+                        $id_staff = $_SESSION['id_staff'];
+                        $query_staff = mysqli_query($conn,"SELECT * from staff where id_staff = '$id_staff'");
+                        $row_staff = mysqli_fetch_array($query_staff);
+                    ?>
+                        <div class="header_user--wrap">
+                        <!-- <img src="./img/user4.png" alt=""> -->
+                        
+                        <a onclick="return showAccountInfo();"><i class="fa-solid fa-circle-user user_icon"></i> </a>
+                        <div class="user_wrap hidden">
+                          <h3>Hello<p><?php echo $row_staff['name_staff']; ?></p></h3>
+                          <ul class="user_wrap--list">
+                           
+                            <li>
+                              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                              <a href="./logout.php" class="logout">Đăng Xuất</a>
+                            </li>
+                          </ul>
+
+                        </div>
+                        </div>
+                      </div>
+                    <?php }
+                    else{
+                        $id_customer = $_SESSION['id_customer'];
+                        $query_customer = mysqli_query($conn,"SELECT * from customers WHERE id_customer = '$id_customer'");
+                        $row_customer = mysqli_fetch_array($query_customer);
+                      ?>
+                      <div class="header_user--wrap">
+                        <!-- <img src="./img/user4.png" alt=""> -->
+                        
+                        <a onclick="return showAccountInfo();"><i class="fa-solid fa-circle-user user_icon"></i> </a>
+                        <div class="user_wrap hidden">
+                          <h3>Hello<p><?php echo $row_customer['username_customer']; ?></p></h3>
+                          <ul class="user_wrap--list">
+                            <li>
+                              <i class="fa-solid fa-circle-user"></i>
+                              <a href="index.php?page_layout=accountPage">Tài Khoản</a> 
+                            </li>
+                            <li>
+                              <i class="fa-solid fa-pen-to-square"></i>
+                              <a href="index.php?page_layout=customeraddress">Địa Chỉ</a> 
+                            </li>
+                            <li>
+                             <i class="fa-solid fa-truck-fast"></i>
+                             <a href="index.php?page_layout=orderCustomer">Đơn Hàng</a>  
+                            </li>
+                            <li>
+                              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                              <a href="./logout.php" class="logout">Đăng Xuất</a>
+                            </li>
+                          </ul>
+
+                        </div>
+                        </div>
+                      </div>
+                   
+                      <?php }?>
                    </li>
                    
                </ul>
@@ -86,90 +151,77 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
         <section class="slider_section ">
           <div id="customCarousel1" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner">
+               <?php 
+                  date_default_timezone_set('Asia/Ho_Chi_Minh');
+                  $datetime_now = date("Y-m-d h:i:s");
+                  $query_discount = mysqli_query($conn,"SELECT * FROM codediscount where date_end >= '$datetime_now '");
+                  $row_discount = mysqli_fetch_array($query_discount);
+                  $id_code = $row_discount['id_code'];
+               ?>
               <div class="carousel-item active">
                 <div class="container ">
                   <div class="row">
                     <div class="col-md-6">
                       <div class="detail-box">
                         <h5>
-                          Bostorek Bookstore
+                          Mã Giảm Giá Tại Bookstore
                         </h5>
                         <h1>
-                          For All Your <br>
-                          Reading Needs
+                          <?php echo $row_discount['code_event']; ?>
                         </h1>
                         <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste quam velit saepe dolorem deserunt quo quidem ad optio.
+                          Nhập mã code để giảm <?php echo $row_discount['discount_value'];?>% tổng giá trị đơn hàng.
+                          <br>Ngày Bắt Đầu: <?php echo $row_discount['date_start']; ?>
+                          <br>Ngày Kết Thúc: <?php echo $row_discount['date_end'];?>
                         </p>
                         <a href="">
                           Read More
                         </a>
+                       
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="img-box">
-                        <img src="images/slider-img.png" alt="">
+                        <img src="../assets/img/slider-img.png" alt=""> 
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="carousel-item">
+              <?php $query_discountRest = mysqli_query($conn,"SELECT * FROM codediscount where id_code != '$id_code' and  date_end >= '$datetime_now '  ");
+                 while($row_discountRest = mysqli_fetch_array($query_discountRest)){
+              ?>
+               <div class="carousel-item">
                 <div class="container ">
                   <div class="row">
                     <div class="col-md-6">
                       <div class="detail-box">
                         <h5>
-                          Bostorek Bookstore
+                          Mã Giảm Giá Tại Bookstore
                         </h5>
                         <h1>
-                          For All Your <br>
-                          Reading Needs
+                          <?php echo $row_discountRest['code_event']; ?>
                         </h1>
                         <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste quam velit saepe dolorem deserunt quo quidem ad optio.
+                          Nhập mã code để giảm <?php echo $row_discountRest['discount_value'];?>% tổng giá trị đơn hàng.
+                          <br>Ngày Bắt Đầu: <?php echo $row_discountRest['date_start']; ?>
+                          <br>Ngày Kết Thúc: <?php echo $row_discountRest['date_end'];?>
                         </p>
                         <a href="">
                           Read More
                         </a>
+                       
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="img-box">
-                        <img src="images/slider-img.png" alt="">
+                        <img src="../assets/img/slider-img.png" alt=""> 
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="carousel-item">
-                <div class="container ">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="detail-box">
-                        <h5>
-                          Bostorek Bookstore
-                        </h5>
-                        <h1>
-                          For All Your <br>
-                          Reading Needs
-                        </h1>
-                        <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste quam velit saepe dolorem deserunt quo quidem ad optio.
-                        </p>
-                        <a href="">
-                          Read More
-                        </a>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="img-box">
-                        <img src="images/slider-img.png" alt="">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <?php }?>
             </div>
             <div class="carousel_btn_box">
               <a class="carousel-control-prev" href="#customCarousel1" role="button" data-slide="prev">
@@ -190,14 +242,46 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
                          //master page
                          if(isset($_GET["page_layout"])){
                             switch($_GET["page_layout"]){
-                                case 'product':include_once './chitietsanpham.php';
+                                case 'productDetails':include_once './productDetails.php';
                                    break;
+                                case 'purchase':include_once './purchase.php';
+                                   break;
+                                case 'cartPage':include_once './cartPage.php';
+                                   break;
+                                case 'accountPage':include_once './CustomerAction/accountPage.php';
+                                   break;
+                                case 'customeraddress':include_once './CustomerAction/address.php';
+                                   break;
+                                case 'addAddress':include_once './CustomerAction/addAddress.php';
+                                  break;
+                                case 'editAddress':include_once './CustomerAction/editAddress.php';
+                                  break;
+                                case 'checkOut' :include_once './purchase.php';
+                                  break;
+                                case 'orderCustomer':include_once './CustomerAction/orderCustomer.php';break;
+                                case 'orderDetails':include_once './CustomerAction/orderDetails.php';break;
+                                case 'product':include_once './product.php';break;
                               }
                          }else {
                         ?>
 
   <!-- catagory section -->
-
+   <script>
+       const scrollToTop = () => {
+            const c = document.documentElement.scrollTop || document.body.scrollTop;
+            if (c > 0) {
+              window.requestAnimationFrame(scrollToTop);
+              window.scrollTo(0, c - c / 8);
+            }
+         };
+        const home =  document.getElementById("home");
+        home.addEventListener("click",function(event){
+          event.preventDefault();
+          return scrollToTop();
+        });
+        
+     
+  </script>
   <section class="category_section  layout_padding">
     <div class="category_container">
       <div class="container ">
@@ -227,11 +311,11 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
                  <h5>
                    <a href=""><?php echo $row_category['name_typegroup'];?></a>
                  </h5>
-                 <p>
+                 <!-- <p>
                    fact that a reader will be distracted by the readable content of a page when looking at its layout.
                    The
                    point of using
-                 </p>
+                 </p> -->
                </div>
              </div>
            </div>
@@ -336,14 +420,14 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
       <div class="container container_book">
         <div class="heading_container heading_center">
           <h2>
-            Sách Bán Chạy
+            Sách Hiện Có
           </h2>
-          <p>
-            
-          </p>
+         
+         
         </div>
         <div class="row">
          <?php 
+         $query_book = mysqli_query($conn,"SELECT * from product order by id_product desc limit 6");
          while ($row_book = mysqli_fetch_array($query_book)){
            $id_product = $row_book['id_product'];
            $id_type = $row_book['id_type'];
@@ -357,16 +441,19 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
            $id_typegroup = $row_type['id_typegroup'];
            $query_typegroup = mysqli_query($conn,"SELECT * from typegroup where id_typegroup = '$id_typegroup'");
            $row_typegroup = mysqli_fetch_array($query_typegroup);
-           $query_sellingprice = mysqli_query($conn,"SELECT * from sellingprice where id_product = '$id_product'");
+           $currentDate = date("Y-m-d");
+           $query_sellingprice = mysqli_query($conn,"SELECT * from sellingprice where id_product = '$id_product' and date_end >= '$currentDate' or date_end = '' and id_product='$id_product'");
            $row_sellingprice = mysqli_fetch_array($query_sellingprice);
+         
          ?> 
           <div class="col-sm-6 col-md-4 ">
-            <div class="box">
+            <div class="box box_product">
               <div class="img-box">
                 <img src="<?php echo $row_img['link_img'];?>" alt="" class="img_book">
                 <div class="box_hover">
                    <div class="box_hover--heading">
                        <span class="product_id" hidden><?php echo $row_book['id_product'];?></span>
+                       <span class="product_quantity" hidden><?php echo $row_book['number_product'];?></span>
                        <h6  class="product_name"><?php echo $row_book['name_product'];?></h6>
                    </div>
                    <ul class="box_hover--listcontent">
@@ -374,20 +461,34 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
                        <li><span>Thể Loại: <?php echo $row_type['name_type'];?></span></li>
                        <li>Giá Bán: <span class="product_price"><?php 
                                    if( $row_sellingprice !== NULL){
-                                    echo number_format($row_sellingprice['selling_price']);
+                                   
+                                       echo number_format($row_sellingprice['selling_price'],0,",",".");
+
+                                    
                                    }else{
                                      echo 0;
                                    }
                                  ?> </span>
                                  <span>VNĐ</span>
+                        <li hidden><span class="id_sell"><?php  if( $row_sellingprice !== NULL){
+                                    echo number_format($row_sellingprice['id_sell']);
+                                   }else{
+                                     echo 0;
+                                   }?></span></li>
                         </li>
-                        <li hidden><input type="number" min="1" max="100" step="1" value="1" id="my-input" readonly></li>
+                     
+                        <li hidden><input type="number" min="1" max="<?php echo $row_book['number_product'] ?>" step="1" value="1" id="my-input" readonly></li>
+                        
                    </ul>
-                 <button class="add_cart">Thêm Vào Giỏ Hàng</button>
+                   <?php if($row_book['number_product'] > 0 ){?>
+                  <button class="add_cart">Thêm Vào Giỏ Hàng</button>
+                   <?php }else{?>
+                  <button class="add_cart" style="pointer-events: none; background-color: #AAAAAA">Hết Hàng</button>
+                  <?php }?>
                </div>
               </div>
               <div class="detail-box">
-                <a href="index.php?page_layout=product&id=<?php echo $row_book['id_product'];?>">
+                <a href="index.php?page_layout=productDetails&id=<?php echo $row_book['id_product'];?>">
                   <h5>
                   <?php echo $row_book['name_product']; ?>
                 </h5>
@@ -401,13 +502,16 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
           
          
         </div>
+        <div class="row readMore" style="margin-top:36px">
+          <a href="index.php?page_layout=product">Xem Thêm</a>
+        </div>
       </div>
 
      
     </div>
   </section>
 
-  <section class= "category_section_book layout_padding">
+   <!-- <section class= "category_section_book layout_padding">
     <div class="category_container">
      
       <div class="container container_book">
@@ -482,14 +586,14 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
         
       </div>
     </div>
-  </section>
+  </section>  -->
 
 
   <!-- end catagory section -->
 
 <!-- blog section -->
 
-<section class="blog_section layout_padding">
+  <section class="blog_section layout_padding">
     <div class="container">
       <div class="heading_container heading_center">
         <h2>
@@ -500,7 +604,7 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
         <div class="col-md-6">
           <div class="box">
             <div class="img-box">
-              <img src="images/b1.jpg" alt="">
+              <img src="../assets/img/b1.jpg" alt="">
               <h4 class="blog_date">
                 <span>
                   19 January 2021
@@ -523,7 +627,7 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
         <div class="col-md-6">
           <div class="box">
             <div class="img-box">
-              <img src="images/b2.jpg" alt="">
+              <img src="../assets/img/b2.jpg" alt="">
               <h4 class="blog_date">
                 <span>
                   19 January 2021
@@ -546,10 +650,10 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
       </div>
     </div>
   </section>
-
-
-
-<section class="contact_section layout_padding">
+  
+  
+  
+  <section class="contact_section layout_padding" id="contactUs">
     <div class="container">
       <div class="row">
         <div class="col-md-6 ">
@@ -585,7 +689,7 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
         </div>
       </div>
     </div>
-</section>
+  </section>
 
   <!-- end contact section -->
   <?php }?>
@@ -602,10 +706,11 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
               About Us
             </h4>
             <p>
-              Vitae aut explicabo fugit facere alias distinctio, exem commodi mollitia minusem dignissimos atque asperiores incidunt vel voluptate iste
+            <!-- SỨ MỆNH CỦA Bookstore: “MANG TRI THỨC, VĂN HÓA ĐỌC ĐẾN VỚI MỌI NHÀ”!<br> -->
+            Hiện nay, Công ty Bookstore đã và đang ngày càng nỗ lực vào sự nghiệp phát triển “văn hóa đọc”, làm cho những giá trị vĩnh hằng của sách ngày càng thấm sâu vào đời sống văn hóa tinh thần của xã hội, nhằm góp phần tích cực, đáp ứng yêu cầu nâng cao dân trí.
             </p>
             <div class="info_social">
-              <a href="">
+              <a href="https://www.facebook.com/meo.u.it.student/" target="_blank">
                 <i class="fa fa-facebook" aria-hidden="true"></i>
               </a>
               <a href="">
@@ -628,20 +733,20 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
             <div class="contact_link_box">
               <a href="">
                 <i class="fa fa-map-marker" aria-hidden="true"></i>
-                <span>
-                  Location
+                <span style="font-size: 14px;">
+                  182/45 Trần Hưng Đạo, phường 7, Quận 3, TP HCM
                 </span>
               </a>
               <a href="">
                 <i class="fa fa-phone" aria-hidden="true"></i>
-                <span>
-                  Call +01 1234567890
+                <span style="font-size: 14px;">
+                  Call +84 984978407
                 </span>
               </a>
               <a href="">
                 <i class="fa fa-envelope" aria-hidden="true"></i>
-                <span>
-                  demo@gmail.com
+                <span style="font-size: 14px;">
+                  datb1809227@student.ctu.edu.vn
                 </span>
               </a>
             </div>
@@ -659,6 +764,7 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
               </button>
             </form>
           </div>
+        
         </div>
         <div class="col-md-6 col-lg-3 info-col">
           <div class="map_container">
@@ -724,39 +830,7 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
                          
                         </div>
                     </li>
-                    <li class="header_cart-item">
-                        <img src="./img/truyen-ngan-chi-pheo-nam-cao.jpg" alt="" class="header_cart-img">
-                        <div class="header_cart-list-item-info">
-                            <div class="header_cart-item-head">
-                                <h5 class="header_cart-item-name">Chí Phèo - Nam Cao</h5>
-                                <a href="" class="header_cart-item-remove"><i class="fa-solid fa-trash"></i></a>
-                            </div>
-    
-                            <div class="header_cart-item-wrap">
-                                <span class="header_cart-item-price"></span><span class="home-detailproduct_heading_price--type">50.000₫</span>
-                                <span class="header_cart-item-multiply">x</span>
-                                <span class="header_cart-item-quantity">1</span>
-                            </div>
-    
-                        </div>
-                    </li>
-                    <li class="header_cart-item">
-                        <img src="./img/truyen-ngan-chi-pheo-nam-cao.jpg" alt="" class="header_cart-img">
-                        <div class="header_cart-list-item-info">
-                            <div class="header_cart-item-head">
-                                <h5 class="header_cart-item-name">Chí Phèo - Nam Cao</h5>
-                                <a href="" class="header_cart-item-remove"><i class="fa-solid fa-trash"></i></a>
-                            </div>
-    
-                            <div class="header_cart-item-wrap">
-                                <span class="header_cart-item-price"></span><span class="home-detailproduct_heading_price--type">50.000₫</span>
-                                <span class="header_cart-item-multiply">x</span>
-                                <span class="header_cart-item-quantity">1</span>
-                            </div>
-    
-                           
-                        </div>
-                    </li>
+                   
                     -->
                 </ul>
               
@@ -764,9 +838,8 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
             <div class="footer_cart hidden">
                 <span class="footer_cart--price">Tổng Cộng: <span class ="footer_cart--total"></span><span class="footer_cart--pricetype">₫</span> 
                 </span> 
-                <a href="">Tiếp Tục Xem Sản Phẩm</a>
-                <a href="">Xem Giỏ Hàng</a>
-                <a href="">Thanh Toán</a>
+                <a href="index.php?page_layout=cartPage">Xem Giỏ Hàng</a>
+                <a href="index.php?page_layout=checkOut">Thanh Toán</a>
             </div>
                 
           
@@ -795,41 +868,179 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
             </button>
           </div>
           <div class="modal-body">
-            <form>
+            <form action="./login.php" method="POST" enctype="multipart/form-data" id="validator">
               <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
+                <label for="username">Tên Đăng Nhập</label>
                 <input
-                  type="email"
+                  type="text"
                   class="form-control"
-                  id="exampleInputEmail1"
-                  aria-describedby="emailHelp"
-                  placeholder="Enter email"
+                  id="username"
+                  name="username_login"
                 />
+                 <span class="form__message"></span>
               </div>
               <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
+                <label for="password">Password</label>
                 <input
                   type="password"
                   class="form-control"
-                  id="exampleInputPassword1"
-                  placeholder="Password"
+                  id="password"
+                  name="password_login"
                 />
+                 <span class="form__message"></span>
               </div>
               <div class="login-form__forget">
-                <a href="#" class="forget_link"> Forget password ? </a>
+                <a href class="forget_link" data-dismiss="modal" data-toggle="modal" data-target="#exampleModalM"> Quên Mật Khẩu ? </a>
                 <span class="login-form__forget-separate"></span>
-                <a href="#" class="signin_link"> Đăng Ký</a>
+                <a href class="signin_link" data-dismiss="modal" data-toggle="modal" data-target="#exampleModalS"> Đăng Ký</a>
               </div>
-            </form>
-           <div class="modal_button">
-               <button type="button" class="btn btn-secondary" style="width:120px" data-dismiss="modal">Trở Lại</button>
-               <button type="button" class="btn btn-primary" style="width:150px">Đăng Nhập</button>
-           </div>
+            
+              <div class="modal_button">
+                  <button type="button" class="btn btn-secondary" style="width:120px" data-dismiss="modal">Trở Lại</button>
+                  <button type="submit" class="btn btn-primary" style="width:150px;color: white;background-color:#063547;">Đăng Nhập</button>
+              </div>
+           </form>
+          </div>
+         
+        </div>
+      </div>
+  </div>
+    
+
+    <div
+      class="modal fade"
+      id="exampleModalS"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content modal_position_sign">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Đăng Ký</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form action="./registration.php" method="POST" enctype="multipart/form-data" id="validator_registration">
+              <div class="form-group">
+                <label for="username">Tên Đăng Nhập</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="new-username"
+                  placeholder=""
+                  name="new-username"
+                />
+                <span class="form__message"></span>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="new-email"
+                  placeholder=""
+                  name="new-email"
+                />
+                <span class="form__message"></span>
+              </div>
+              <div class="form-group">
+                <label for="password">Mật Khẩu</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="new-password"
+                  placeholder=""
+                  name="new-password"
+                />
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                     Mật Khẩu phải có tối thiểu tám ký tự, ít nhất một chữ cái viết hoa, một chữ cái viết thường, một số và một kí tự đặc biệt!
+                <span class="form__message"></span>
+              </div>
+              <div class="form-group">
+                <label for="new-repassword">Xác Nhận Mật Khẩu</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="new-repassword"
+                  placeholder=""
+                />
+                <span class="form__message"></span>
+              </div>
+              <div class="confirm_signup">
+                Bằng việc đăng ký, bạn đã đồng ý với <span>BookStore</span>  về <a href="">Điều khoản dịch vụ</a> &  <a href="">Chính sách bảo mật</a>
+              </div>
+              
+              <div class="modal_button">
+                  <button type="button" class="btn btn-secondary" style="width:120px" data-dismiss="modal">Trở Lại</button>
+                  <button type="submit" class="btn btn-primary" style="width:150px; color: white;background-color:#063547;" name="registration_submit">Đăng Ký</button>
+              </div>
+           </form>
           </div>
          
         </div>
       </div>
     </div>
+
+    <div
+      class="modal fade"
+      id="exampleModalM"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content modal_position">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Quên Mật Khẩu</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form action="#" method="POST" enctype="multipart/form-data" id="forgetPassword">
+              <div class="form-group">
+                <label for="emailConfirm">Nhập Email đã đăng ký</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="emailConfirm"
+                />
+                 <span class="form__message"></span>
+              </div>
+              <div class="form-group hidden">
+                <label for="confirmCode">Mã Xác Nhận</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirmCode"
+                />
+                 <span class="form__message"></span>
+              </div>
+              
+              <div class="modal_button">
+                  <button type="button" class="btn btn-secondary" style="width:120px" data-dismiss="modal">Trở Lại</button>
+                  <button type="submit" class="btn btn-primary" style="width:150px;color: white;background-color:#063547;">Gửi Mã</button>
+              </div>
+           </form>
+          </div>
+         
+        </div>
+      </div>
+    </div>
+    
   <!-- jQery -->
   <script src="../assets/script/jquery-3.4.1.min.js"></script>
   <!-- bootstrap js -->
@@ -837,15 +1048,67 @@ $query_category = mysqli_query($conn,"SELECT * from typegroup order by id_typegr
   <!-- custom js -->
   <script src="../assets/script/custom.js"></script>
   <!-- Google Map -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
+ 
   </script>
   <!-- Input Custom -->
    <script src="../assets/script/inputcustom.js"></script>
    <script src="../assets/script/cart.js"></script>
    <script src="../assets/script/localStorageCart.js"></script>
-   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"> </script>
   <!-- End Google Map -->
-
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
 
 </body>
+  
+<script>
+         Validator({
+             form: '#validator_registration',
+             formGroupSelector: '.form-group',
+             errorSelector: '.form__message',
+             rules: [
+                 Validator.isRequired('#new-username','<i class="fas fa-exclamation-triangle warn_icon"></i>Vui lòng nhập vào tên đăng nhập của bạn'),
+                 Validator.isPassword('#new-password','<i class="fas fa-exclamation-triangle warn_icon"></i>Mật khẩu không chính xác'),
+                 Validator.isEmail('#new-email','<i class="fas fa-exclamation-triangle warn_icon"></i>Email không chính xác'),
+                 Validator.isConfirmed('#new-repassword', function(){
+                   return document.querySelector('#validator_registration #new-password').value;
+                 }),
+             ]
+         });
+         Validator({
+             form: '#validator',
+             formGroupSelector: '.form-group',
+             errorSelector: '.form__message',
+             rules: [
+                 Validator.isRequired('#username','<i class="fas fa-exclamation-triangle warn_icon"></i>Vui lòng nhập vào tên đăng nhập của bạn'),
+                 Validator.isPassword('#password','<i class="fas fa-exclamation-triangle warn_icon"></i>Mật khẩu không chính xác'),
+             ]
+         });
+    
+
+       
+</script>
+<?php
+if(isset($_SESSION['title']) && $_SESSION['title'] !=''){
+?>
+<script>
+     Swal.fire({
+                icon: "<?php echo $_SESSION['icon']?>",
+                title: "<?php echo $_SESSION['title'];?>",
+                text: "<?php if(isset($_SESSION['text'])){ 
+                                echo $_SESSION['text'];
+                              }else{ 
+                                echo "";
+                              }
+                        ?>",
+                showConfirmButton: true,
+              });
+</script>
+
+<?php
+unset($_SESSION['title']);
+unset($_SESSION['text']);
+unset($_SESSION['icon']);
+}
+
+?>
+
 </html>

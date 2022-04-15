@@ -7,7 +7,7 @@ SET time_zone = "+00:00";
 SET NAMES 'utf8';
 SET CHARACTER SET utf8;
 
-Create table Staff(
+Create table staff(
    id_staff int auto_increment primary key,
    name_staff varchar(255),
    address_staff varchar(255),
@@ -16,43 +16,43 @@ Create table Staff(
    note_staff varchar(255)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table staffAccount(
+Create table staffaccount(
    id_staff int,
    email_staff varchar(255),
    password_staff varchar(255),
    foreign key (id_staff) references Staff(id_staff) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table Role(
+Create table rolestaff(
   id_role int auto_increment primary key,
   name_role varchar(255)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table roleDetails(
+Create table roledetails(
   id_staff int,
   id_role int,
   foreign key(id_staff) references Staff(id_staff) ON DELETE CASCADE,
-  foreign key(id_role) references Role(id_role) ON DELETE CASCADE
+  foreign key(id_role) references rolestaff(id_role) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table typeGroup(
+Create table typegroup(
    id_typegroup int auto_increment primary key,
    name_typegroup varchar(255)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table productType(
+Create table producttype(
   id_typegroup int,
   id_type int auto_increment primary key,
   name_type varchar(255),
   foreign key(id_typegroup) references typeGroup(id_typegroup)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table publishingCompany(
+Create table publishingcompany(
    id_publishingcompany int auto_increment primary key,
    name_publishingcompany varchar(255)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table Product(
+Create table product(
    id_type int,
    id_product int auto_increment primary key,
    id_publishingcompany int,
@@ -66,19 +66,19 @@ Create table Product(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-Create table Supplier(
+Create table supplier(
    id_supplier int auto_increment primary key,
    name_supplier varchar(255),
    phone_supplier varchar(10),
    address_supplier varchar(255)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table importProduct(
+Create table importproduct(
    id_import int auto_increment primary key,
    date_import date
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table importDetails(
+Create table importdetails(
    id_import int,
    id_product int,
    id_supplier int,
@@ -97,7 +97,7 @@ Create table sellingprice(
    date_start date,
    date_end date
 );
-Create table discountValue(
+Create table discountvalue(
   id_product int auto_increment primary key,
   discount_value float,
   date_start date,
@@ -105,13 +105,13 @@ Create table discountValue(
   foreign key(id_product) references Product(id_product) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table codeDiscount(
+Create table codediscount(
    id_code int auto_increment primary key,
    code_event varchar(255),
    discount_value float
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table Customers(
+Create table customers(
   id_customer int primary key auto_increment,
   name_customer varchar(255),
   phone_customer varchar(10),
@@ -123,7 +123,7 @@ Create table Customers(
 Create table customerAddress(
   id_customer int,
   id_address int primary key auto_increment,
-  address varchar(255),
+  address_receive varchar(255),
   name_receive varchar(255), 
   phone_receive varchar(10),
   foreign key(id_customer) references Customers(id_customer) ON DELETE CASCADE
@@ -132,7 +132,6 @@ Create table customerAddress(
 Create table Orders(
   id_order int auto_increment primary key,
   id_staff int,
-  id_customer int,
   id_address int,
   id_code int,
   date_delivery date,
@@ -140,17 +139,33 @@ Create table Orders(
   order_status varchar(255),
   total_price float,
   note_orders varchar(255),
-  foreign key(id_staff) references Staff(id_staff) ON DELETE CASCADE,
-  foreign key(id_customer) references Customers(id_customer) ON DELETE CASCADE,
+  foreign key(id_staff) references staff(id_staff) ON DELETE CASCADE,
   foreign key(id_address) references customerAddress(id_address) ON DELETE CASCADE,
-  foreign key(id_code) references codeDiscount(id_code) ON DELETE CASCADE
+  foreign key(id_code) references codediscount(id_code) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Create table orderDetails(
+Create table orderdetails(
   id_order int,
+  id_sell int,
   number_order int,
-  price_order float,
-  foreign key(id_order) references Orders(id_order) ON DELETE CASCADE
+  foreign key(id_order) references Orders(id_order) ON DELETE CASCADE,
+  foreign key(id_sell) references sellingprice(id_sell)  ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
+Create table productimage(
+   id_product int,
+   id_img int,
+   link_img varchar(255),
+   foreign key(id_product) references product(id_product) on delete cascade
+);
+drop table orderdetails;
+Create table productdetails(
+  id_product int,
+  author_product varchar(255),
+  translator_product varchar(255),
+  publishing_year varchar(255),
+  pages_product int,
+  form_product varchar(255),
+  introduce_product text,
+  foreign key(id_product) references product(id_product) on delete cascade
+);

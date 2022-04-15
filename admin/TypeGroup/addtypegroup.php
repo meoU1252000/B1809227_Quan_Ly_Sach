@@ -5,33 +5,46 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    if(isset($_POST['nameTypeGroup'])){
-         $name = $_POST['nameTypeGroup'];
-         $sql = "INSERT into typegroup(name_typegroup) values ('$name')";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Thêm Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=typeGroup";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
-         }else {
-            $_SESSION['status'] = "Thêm Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=typeGroup";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if(in_array("3", $_SESSION['roleStaff'], true)){
+        if(isset($_POST['nameTypeGroup'])){
+             $name = $_POST['nameTypeGroup'];
+             $sql = "INSERT into typegroup(name_typegroup) values ('$name')";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Thêm Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=typeGroup";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Thêm Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=typeGroup";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
         }
+        mysqli_close($conn);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
     }
-    mysqli_close($conn);
 }
 
 ?>

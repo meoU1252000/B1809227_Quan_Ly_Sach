@@ -15,14 +15,20 @@ if(isset($_POST['username']) && isset($_POST['password'])){
     $sql = "SELECT * from staffaccount where email_staff ='$username' and password_staff=md5('$password')";
     $query=mysqli_query($conn,$sql);
     $rows=mysqli_num_rows($query);
-    $row = mysqli_fetch_array($query);
-    $id_staff = $row['id_staff'];
-    $query_name =mysqli_query($conn,"SELECT * from staff where id_staff = '$id_staff'");
-    $row_staff = mysqli_fetch_array($query_name);
 	if($rows > 0 ){
+        $row = mysqli_fetch_array($query);
+        $id_staff = $row['id_staff'];
+        $query_name =mysqli_query($conn,"SELECT * from staff where id_staff = '$id_staff'");
+        $query_role = mysqli_query($conn,"SELECT * from roledetails where id_staff = '$id_staff'");
+        $row_staff = mysqli_fetch_array($query_name);
         $_SESSION['nameStaff'] = $row_staff['name_staff'];
 		$_SESSION['username'] =$username;
         $_SESSION['password'] =$password;
+        $_SESSION['id_staff'] = $id_staff;
+        $_SESSION['roleStaff'] = array();
+        while($row_role = mysqli_fetch_array($query_role)){
+            array_push($_SESSION['roleStaff'],$row_role['id_role']);
+        } 
         header("location: ./index.php");
     } else {
         echo '<script language="javascript">';

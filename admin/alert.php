@@ -9,12 +9,18 @@ if(isset($_SESSION['status']) && $_SESSION['status'] !=''){
 <script>
      swal({
                 title: "<?php echo $_SESSION['status'];?>",
-                text: "",
+                text: "<?php if(isset($_SESSION['notice'])){ 
+                                echo $_SESSION['notice'];
+                              }else{ 
+                                echo "";
+                              }
+                        ?>",
                 icon: "<?php echo $_SESSION['status_code']?>",
               });
 </script>
 <?php
 unset($_SESSION['status']);
+unset($_SESSION['notice']);
 }
 
 ?>

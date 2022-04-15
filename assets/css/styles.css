@@ -11730,3 +11730,52 @@ body {
   background-color: transparent;
   border: none;
 }
+
+
+
+.detail-box_wrap {
+  display: flex;
+  
+}
+
+ .input-box {
+  border: 1px solid black;
+  width: fit-content;
+  display: flex;
+  height: 38px;
+  margin-top: 4px;
+  border-radius: 8px;
+}
+
+ .input-box input[type="number"] {
+  -moz-appearance: textfield;
+  text-align: center;
+  font-size: 1.4rem;
+  border: none;
+  background-color: #ffffff;
+  color: #202030;
+  outline: none;
+}
+
+ .input-box button {
+  color: #202030;
+  background-color: #ffffff;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+
+
+#decrement {
+  padding: 0px 15px 0px 15px;
+  border-radius: 8px;
+  outline: none;
+}
+
+#increment {
+  padding: 0px 15px 0px 15px;
+  border-radius: 8px;
+  outline: none;
+}
+

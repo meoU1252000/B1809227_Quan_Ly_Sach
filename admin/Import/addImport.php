@@ -5,33 +5,46 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    if(isset($_POST['dateImport'])){
-         $date = $_POST['dateImport'];
-         $sql = "INSERT into importproduct(date_import) values ('$date')";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Thêm Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=importproduct";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
-         }else {
-            $_SESSION['status'] = "Thêm Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=importproduct";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if(in_array("4", $_SESSION['roleStaff'], true)){
+        if(isset($_POST['dateImport'])){
+             $date = $_POST['dateImport'];
+             $sql = "INSERT into importproduct(date_import) values ('$date')";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Thêm Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=importproduct";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Thêm Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=importproduct";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
         }
-    }
-    mysqli_close($conn);
+        mysqli_close($conn);
+   }else{
+     echo '<script language="javascript">';
+     echo 'alert("Bạn không có quyền truy cập vào trang này")';
+     echo '</script>';
+     $url = "index.php";
+     if(headers_sent()){
+         die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+     }else{
+         header ("location: $url");
+         die();
+     }
+   } 
 }
 
 ?>
@@ -74,4 +87,19 @@ if (!isset($_SESSION['username'])) {
                Validator.isRequired('#dateImport')
             ]
         });
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1; //January is 0!
+        var yyyy = today.getFullYear();
+        
+        if (dd < 10) {
+           dd = '0' + dd;
+        }
+        
+        if (mm < 10) {
+           mm = '0' + mm;
+        } 
+            
+        today = yyyy + '-' + mm + '-' + dd;
+        document.getElementById("dateImport").setAttribute("min", today);
     </script>

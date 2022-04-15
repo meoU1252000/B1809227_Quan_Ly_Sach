@@ -3,44 +3,58 @@ if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
     include_once './alert.php';
-    $result = mysqli_query($conn, "SELECT * from viewstaff");
-    if(isset($_POST['id_delete'])){
-        $location = $_GET['page_layout'];
-        $id_delete = $_POST['id_delete'];
-        $sql = "CALL xoaData('$location',$id_delete,'id_staff')";
-       if(mysqli_query($conn,$sql)){
-            $_SESSION['status'] = "Xóa Thành Công!";
-            $_SESSION['status_code']= "success";
-            if(isset($_POST['queryToBack'])){
-                $url = "index.php?page_layout=" .$_GET['page_layout'];
-                $url .="&id=" .$_POST['queryToBack'];
-            }else{
-                $url = "index.php?page_layout=" .$_GET['page_layout'];
+    if(in_array("1", $_SESSION['roleStaff'], true)){
+        $result = mysqli_query($conn, "SELECT * from viewstaff");
+        if(isset($_POST['id_delete'])){
+            $location = $_GET['page_layout'];
+            $id_delete = $_POST['id_delete'];
+            $sql = "CALL xoaData('$location',$id_delete,'id_staff')";
+           if(mysqli_query($conn,$sql)){
+                $_SESSION['status'] = "Xóa Thành Công!";
+                $_SESSION['status_code']= "success";
+                if(isset($_POST['queryToBack'])){
+                    $url = "index.php?page_layout=" .$_GET['page_layout'];
+                    $url .="&id=" .$_POST['queryToBack'];
+                }else{
+                    $url = "index.php?page_layout=" .$_GET['page_layout'];
+                }
+                if(headers_sent()){
+                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                    header ("location: $url");
+                    die();
+                }
+            } else {
+                $_SESSION['status'] = "Xóa Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                if(isset($_POST['queryToBack'])){
+                    $url = "index.php?page_layout=" .$_GET['page_layout'];
+                    $url .="&id=" .$_POST['queryToBack'];
+                }else{
+                    $url = "index.php?page_layout=" .$_GET['page_layout'];
+                }
+                if(headers_sent()){
+                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                    header ("location: $url");
+                    die();
+                }
+               
+               // echo "Error: " . $sql . "<br>" . mysqli_error($conn);
             }
-            if(headers_sent()){
-               die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                header ("location: $url");
-                die();
-            }
-        } else {
-            $_SESSION['status'] = "Xóa Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            if(isset($_POST['queryToBack'])){
-                $url = "index.php?page_layout=" .$_GET['page_layout'];
-                $url .="&id=" .$_POST['queryToBack'];
-            }else{
-                $url = "index.php?page_layout=" .$_GET['page_layout'];
-            }
-            if(headers_sent()){
-               die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                header ("location: $url");
-                die();
-            }
-           
-           // echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            
+        }
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
         }
     }
 }
@@ -53,7 +67,7 @@ if (!isset($_SESSION['username'])) {
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item active">Quản Lý Thông Tin Nhân Viên</li>
                         </ol>
-                        
+
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table me-1"></i>

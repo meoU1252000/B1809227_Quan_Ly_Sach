@@ -4,35 +4,48 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    $sql = "SELECT staff.* from staff LEFT JOIN staffaccount ON staff.id_staff = staffaccount.id_staff where staffaccount.id_staff is Null";
-    $query = mysqli_query($conn,$sql);
-    if(isset($_POST['email']) && isset($_POST['password'])){
-        $id_staff = $_POST['id_staff'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $passwordadmin = $_POST['passwordadmin'];
-        $insert = "INSERT into staffaccount(id_staff,email_staff,password_staff) values ('$id_staff','$email',md5('$password'))";
-        if(mysqli_query($conn,$insert)){
-            $_SESSION['status'] = "Thêm Thành Công!";
-            $_SESSION['status_code']= "success";
-           $url = "index.php?page_layout=staff";
-           if(headers_sent()){
-               die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-           }else{
-                header ("location: $url");
-                die();
-           }
-        }else {
-           $_SESSION['status'] = "Thêm Thất Bại!";
-           $_SESSION['status_code']= "error";
-           $conn -> rollback();
-           $url = "index.php?page_layout=staff";
-           if(headers_sent()){
-               die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-           }else{
-                header ("location: $url");
-                die();
-           }
+    if(in_array("1", $_SESSION['roleStaff'], true)){
+        $sql = "SELECT staff.* from staff LEFT JOIN staffaccount ON staff.id_staff = staffaccount.id_staff where staffaccount.id_staff is Null";
+        $query = mysqli_query($conn,$sql);
+        if(isset($_POST['email']) && isset($_POST['password'])){
+            $id_staff = $_POST['id_staff'];
+            $email = $_POST['email'];
+            $password = $_POST['password'];
+            $passwordadmin = $_POST['passwordadmin'];
+            $insert = "INSERT into staffaccount(id_staff,email_staff,password_staff) values ('$id_staff','$email',md5('$password'))";
+            if(mysqli_query($conn,$insert)){
+                $_SESSION['status'] = "Thêm Thành Công!";
+                $_SESSION['status_code']= "success";
+               $url = "index.php?page_layout=staff";
+               if(headers_sent()){
+                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+               }else{
+                    header ("location: $url");
+                    die();
+               }
+            }else {
+               $_SESSION['status'] = "Thêm Thất Bại!";
+               $_SESSION['status_code']= "error";
+               $conn -> rollback();
+               $url = "index.php?page_layout=staff";
+               if(headers_sent()){
+                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+               }else{
+                    header ("location: $url");
+                    die();
+               }
+            }
+        }
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
         }
     }
 }
@@ -52,6 +65,7 @@ if (!isset($_SESSION['username'])) {
                                     Cấp Tài Khoản Mới
                                 </div>
                                 <div class="card-body">
+                                    <?php if(mysqli_num_rows($query) > 0 ){?>
                                        <h6 class="card-body__heading">Account Infomartion</h6>
                                         <div class="form-group">
                                             <label for="Inputstaff">Choose Staff </label>   
@@ -90,7 +104,20 @@ if (!isset($_SESSION['username'])) {
                                            <span class="form-group__message"></span>
                                          </div>
                                          <button type="submit" class="btn btn-primary" style="background-color: #212529;margin-top:12px;">Submit</button>
-                                    
+                                    <?php }else{ 
+                                         $_SESSION['status'] = "Truy Cập Thất Bại!";
+                                         $_SESSION['notice'] = "Không có nhân viên nào chưa có tài khoản !";
+                                         $_SESSION['status_code']= "error";
+                                         $conn -> rollback();
+                                         $url = "index.php?page_layout=staff";
+                                         if(headers_sent()){
+                                             die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                                         }else{
+                                              header ("location: $url");
+                                              die();
+                                         }
+                                        }
+                                    ?>
                                 </div>
                     </div>
                 </form>

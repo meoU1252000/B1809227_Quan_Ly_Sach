@@ -5,37 +5,50 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    if(isset($_POST['nameSupplier']) && isset($_POST['addressSupplier']) 
-      && isset($_POST['phone'])){
-         $name = $_POST['nameSupplier'];
-         $address = $_POST['addressSupplier'];
-         $phone = $_POST['phone'];
-         $note = $_POST['note'];
-         $sql = "INSERT into supplier(name_supplier,phone_supplier,address_supplier,note_supplier) values ('$name','$phone','$address','$note')";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Thêm Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=supplier";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
-         }else {
-            $_SESSION['status'] = "Thêm Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=supplier";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if(in_array("4", $_SESSION['roleStaff'], true)){
+        if(isset($_POST['nameSupplier']) && isset($_POST['addressSupplier']) 
+          && isset($_POST['phone'])){
+             $name = $_POST['nameSupplier'];
+             $address = $_POST['addressSupplier'];
+             $phone = $_POST['phone'];
+             $note = $_POST['note'];
+             $sql = "INSERT into supplier(name_supplier,phone_supplier,address_supplier,note_supplier) values ('$name','$phone','$address','$note')";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Thêm Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=supplier";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Thêm Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=supplier";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
         }
+        mysqli_close($conn);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
     }
-    mysqli_close($conn);
 }
 
 ?>

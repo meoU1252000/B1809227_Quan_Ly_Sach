@@ -5,40 +5,53 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    $id_img = $_REQUEST['id'];
-    $query = mysqli_query($conn,"SELECT * from productimage where id_img = '$id_img'");
-    $row_img = mysqli_fetch_array($query);
-    $id_product = $row_img['id_product'];
-    $product = mysqli_query($conn,"SELECT * from product where id_product = '$id_product'");
-    if(isset($_POST['add-img'])){
-        $product_img = '../img/Book/';
-        $product_img = $product_img.$_FILES['product-img'] ['name'];
-        move_uploaded_file($_FILES['product-img']['tmp_name'],$product_img);
-         $sql = "UPDATE productimage SET link_img = '$product_img' where id_img = '$id_img' ";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Cập Nhật Hình Ảnh Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=productimage&id=" .$id_product;
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
-         }else {
-            $_SESSION['status'] = "Cập Nhật Hình Ảnh Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=productimage&id=" .$id_product;
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if(in_array("3", $_SESSION['roleStaff'], true)){
+        $id_product = $_REQUEST['id'];
+        $query = mysqli_query($conn,"SELECT * from productimage where id_product = '$id_product'");
+        $row_img = mysqli_fetch_array($query);
+        $id_product = $row_img['id_product'];
+        $product = mysqli_query($conn,"SELECT * from product where id_product = '$id_product'");
+        if(isset($_POST['add-img'])){
+            $product_img = '../img/Book/';
+            $product_img = $product_img.$_FILES['product-img'] ['name'];
+            move_uploaded_file($_FILES['product-img']['tmp_name'],$product_img);
+             $sql = "UPDATE productimage SET link_img = '$product_img' where id_img = '$id_img' ";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Cập Nhật Hình Ảnh Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=productimage&id=" .$id_product;
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Cập Nhật Hình Ảnh Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=productimage&id=" .$id_product;
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
         }
+        mysqli_close($conn);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
     }
-    mysqli_close($conn);
 }
 
 ?>

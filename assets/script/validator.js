@@ -15,12 +15,13 @@ function Validator(options) {
 
   function validate(inputElement, rule) {
     //console.log(errorMessage);
+    // console.log(inputElement);
     var errorElement = getParent(
       inputElement,
       options.formGroupSelector
     ).querySelector(options.errorSelector);
+    // console.log(inputElement);
     var errorMessage = rule.test(inputElement.value);
-    //console.log(errorMessage);
 
     var rules = selectorRules[rule.selector];
 
@@ -53,7 +54,7 @@ function Validator(options) {
   }
 
   var formElement = document.querySelector(options.form);
-  //console.log(formElement);
+  // console.log(formElement);
   if (formElement) {
     //Khi submit form nhưng chưa đạt yêu cầu
     formElement.onsubmit = function (e) {
@@ -64,6 +65,7 @@ function Validator(options) {
       // Lặp qua từng rule và validate
       options.rules.forEach(function (rule) {
         var inputElement = formElement.querySelector(rule.selector);
+        //  console.log(inputElement);
         var isValid = validate(inputElement, rule);
         if (!isValid) {
           isFormValid = false;
@@ -90,6 +92,9 @@ function Validator(options) {
                }
                values[input.name].push(input.value);
                break;
+               case 'file': 
+                    values[input.name] = input.files;
+                break;
               default:
                 values[input.name] = input.value;
            }

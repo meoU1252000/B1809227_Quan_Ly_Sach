@@ -5,35 +5,48 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    $type = mysqli_query($conn,"SELECT * from producttype order by id_type");
-    $publishingcompany = mysqli_query($conn, "SELECT * from publishingcompany ORDER BY id_publishingcompany ");
-    if(isset($_POST['nameProduct'])){
-         $name = $_POST['nameProduct'];
-         $id_type = $_POST['id_type'];
-         $id_publishingcompany = $_POST['id_publishingcompany'];
-         $note = $_POST['noteProduct'];
-         $sql = "INSERT into product(id_type,id_publishingcompany,name_product,number_product,product_sold,note_product) values ('$id_type','$id_publishingcompany','$name','0','0','$note')";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Thêm Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=product";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if(in_array("3", $_SESSION['roleStaff'], true)){
+        $type = mysqli_query($conn,"SELECT * from producttype order by id_type");
+        $publishingcompany = mysqli_query($conn, "SELECT * from publishingcompany ORDER BY id_publishingcompany ");
+        if(isset($_POST['nameProduct'])){
+             $name = $_POST['nameProduct'];
+             $id_type = $_POST['id_type'];
+             $id_publishingcompany = $_POST['id_publishingcompany'];
+             $note = $_POST['noteProduct'];
+             $sql = "INSERT into product(id_type,id_publishingcompany,name_product,number_product,product_sold,note_product) values ('$id_type','$id_publishingcompany','$name','0','0','$note')";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Thêm Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=product";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Thêm Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=product";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
-         }else {
-            $_SESSION['status'] = "Thêm Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=product";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
+        }
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
         }
     }
     

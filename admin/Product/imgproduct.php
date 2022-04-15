@@ -2,11 +2,24 @@
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    include_once './alert.php';
-    $id_product = $_REQUEST['id'];
-    $result = mysqli_query($conn, "SELECT * from productimage  where id_product = '$id_product'");
-    $query_product = mysqli_query($conn,"SELECT * from product where id_product = '$id_product'");
-    $row_product = mysqli_fetch_array($query_product);
+    if(in_array("3", $_SESSION['roleStaff'], true)){
+        include_once './alert.php';
+        $id_product = $_REQUEST['id'];
+        $result = mysqli_query($conn, "SELECT * from productimage  where id_product = '$id_product'");
+        $query_product = mysqli_query($conn,"SELECT * from product where id_product = '$id_product'");
+        $row_product = mysqli_fetch_array($query_product);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
+    }
 }
 ?>
 

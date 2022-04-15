@@ -5,36 +5,49 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    $id_publishingcompany = $_REQUEST['id'];
-    $query = mysqli_query($conn,"SELECT * from publishingcompany where id_publishingcompany = '$id_publishingcompany'");
-    $row = mysqli_fetch_array($query);
-    if(isset($_POST['name_publishingcompany'])){
-         $name = $_POST['name_publishingcompany'];
-         $sql = "UPDATE publishingcompany SET name_publishingcompany = '$name' where id_publishingcompany = '$id_publishingcompany' ";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Cập Nhật Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=publishingCompany";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
-         }else {
-            $_SESSION['status'] = "Cập Nhật Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=publishingCompany";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if($_SESSION['roleStaff'][0] == 3 || $_SESSION['roleStaff']["3"]){
+        $id_publishingcompany = $_REQUEST['id'];
+        $query = mysqli_query($conn,"SELECT * from publishingcompany where id_publishingcompany = '$id_publishingcompany'");
+        $row = mysqli_fetch_array($query);
+        if(isset($_POST['name_publishingcompany'])){
+             $name = $_POST['name_publishingcompany'];
+             $sql = "UPDATE publishingcompany SET name_publishingcompany = '$name' where id_publishingcompany = '$id_publishingcompany' ";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Cập Nhật Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=publishingCompany";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Cập Nhật Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=publishingCompany";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
         }
+        mysqli_close($conn);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
     }
-    mysqli_close($conn);
 }
 
 ?>

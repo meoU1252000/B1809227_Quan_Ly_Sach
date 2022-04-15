@@ -5,43 +5,56 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    $id_supplier = $_REQUEST['id'];
-    $query = mysqli_query($conn,"SELECT * from supplier where id_supplier ='$id_supplier'");
-    if(isset($_POST['nameSupplier']) || isset($_POST['addressSupplier']) 
-    || isset($_POST['phone']) || isset($_POST['note'])){
-         $name = $_POST['nameSupplier'];
-         $address = $_POST['addressSupplier'];
-         $phone = $_POST['phone'];
-         $note = $_POST['note'];
-         $sql = "UPDATE supplier SET name_supplier = '$name',
-                                  address_supplier = '$address',
-                                  phone_supplier = '$phone',
-                                  note_supplier = '$note' 
-                                  where id_supplier = '$id_supplier'";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Cập Nhật Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=supplier";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
-         }else {
-            $_SESSION['status'] = "Cập Nhật Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=supplier";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if(in_array("4", $_SESSION['roleStaff'], true)){
+        $id_supplier = $_REQUEST['id'];
+        $query = mysqli_query($conn,"SELECT * from supplier where id_supplier ='$id_supplier'");
+        if(isset($_POST['nameSupplier']) || isset($_POST['addressSupplier']) 
+        || isset($_POST['phone']) || isset($_POST['note'])){
+             $name = $_POST['nameSupplier'];
+             $address = $_POST['addressSupplier'];
+             $phone = $_POST['phone'];
+             $note = $_POST['note'];
+             $sql = "UPDATE supplier SET name_supplier = '$name',
+                                      address_supplier = '$address',
+                                      phone_supplier = '$phone',
+                                      note_supplier = '$note' 
+                                      where id_supplier = '$id_supplier'";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Cập Nhật Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=supplier";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Cập Nhật Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=supplier";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
         }
+        mysqli_close($conn);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
     }
-    mysqli_close($conn);
 }
 
 ?>

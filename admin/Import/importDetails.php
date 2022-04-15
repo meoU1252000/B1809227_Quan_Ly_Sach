@@ -2,9 +2,22 @@
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    include_once './alert.php';
-    $id_import = $_REQUEST['id'];
-    $result = mysqli_query($conn, "SELECT * from importdetails where id_import = '$id_import'");
+    if(in_array("4", $_SESSION['roleStaff'], true)){
+        include_once './alert.php';
+        $id_import = $_REQUEST['id'];
+        $result = mysqli_query($conn, "SELECT * from importdetails where id_import = '$id_import'");
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
+    }
   
 
 }
@@ -74,7 +87,7 @@ if (!isset($_SESSION['username'])) {
                                     </tbody>
                                 </table>
                                 
-                                <a href = "index.php?page_layout=addImportDetails" class="btn btn-primary" style="background-color: #212529;color:white;text-decoration:none;margin-top:12px">Create New</a>
+                                <a href = "index.php?page_layout=addImportDetails&id=<?php echo $id_import; ?>" class="btn btn-primary" style="background-color: #212529;color:white;text-decoration:none;margin-top:12px">Create New</a>
                             </div>
                         </div>
 

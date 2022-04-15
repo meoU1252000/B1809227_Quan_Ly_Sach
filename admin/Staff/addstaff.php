@@ -5,38 +5,51 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    if(isset($_POST['nameStaff']) && isset($_POST['addressStaff']) 
-     && isset($_POST['positionStaff']) && isset($_POST['phone'])){
-         $name = $_POST['nameStaff'];
-         $address = $_POST['addressStaff'];
-         $position = $_POST['positionStaff'];
-         $phone = $_POST['phone'];
-         $note = $_POST['note'];
-         $sql = "INSERT into staff(name_staff,address_staff,position_staff,phone_staff,note_staff) values ('$name','$address','$position','$phone','$note')";
-         if(mysqli_query($conn,$sql)){
-             $_SESSION['status'] = "Thêm Thành Công!";
-             $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=staff";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
-            }
-         }else {
-            $_SESSION['status'] = "Thêm Thất Bại!";
-            $_SESSION['status_code']= "error";
-            $conn -> rollback();
-            $url = "index.php?page_layout=staff";
-            if(headers_sent()){
-                die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-            }else{
-                 header ("location: $url");
-                 die();
+    if(in_array("1", $_SESSION['roleStaff'], true)){
+        if(isset($_POST['nameStaff']) && isset($_POST['addressStaff']) 
+         && isset($_POST['positionStaff']) && isset($_POST['phone'])){
+             $name = $_POST['nameStaff'];
+             $address = $_POST['addressStaff'];
+             $position = $_POST['positionStaff'];
+             $phone = $_POST['phone'];
+             $note = $_POST['note'];
+             $sql = "INSERT into staff(name_staff,address_staff,position_staff,phone_staff,note_staff) values ('$name','$address','$position','$phone','$note')";
+             if(mysqli_query($conn,$sql)){
+                 $_SESSION['status'] = "Thêm Thành Công!";
+                 $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=staff";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
+             }else {
+                $_SESSION['status'] = "Thêm Thất Bại!";
+                $_SESSION['status_code']= "error";
+                $conn -> rollback();
+                $url = "index.php?page_layout=staff";
+                if(headers_sent()){
+                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                }else{
+                     header ("location: $url");
+                     die();
+                }
             }
         }
+        mysqli_close($conn);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
     }
-    mysqli_close($conn);
 }
 
 ?>

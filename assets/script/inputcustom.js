@@ -7,9 +7,9 @@ function stepper(btn) {
   let val = myInput.getAttribute("value");
   let calcStep = id == "increment" ? step * 1 : step * -1;
   let newValue = parseInt(val) + calcStep;
-  console.log(newValue);
   if (newValue >= min && newValue <= max) {
     myInput.setAttribute("value", newValue);
+
   }
 }
 

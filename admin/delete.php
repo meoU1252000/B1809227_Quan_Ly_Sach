@@ -28,6 +28,7 @@
         } else {
             $_SESSION['status'] = "Xóa Thất Bại!";
             $_SESSION['status_code']= "error";
+          
             $conn -> rollback();
             if(isset($_POST['queryToBack'])){
                 $url = "index.php?page_layout=" .$location_delete;

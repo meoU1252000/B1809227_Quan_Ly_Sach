@@ -1,4 +1,5 @@
 "use strict";
+checkChange();
 const btn = document.querySelectorAll(".add_cart");
 btn.forEach(function (button) {
   button.addEventListener("click", function (event) {
@@ -12,10 +13,35 @@ btn.forEach(function (button) {
     var productPrice = product.querySelector(".product_price").innerText;
     var productId = product.querySelector(".product_id").innerText;
     var productNumber = product.querySelector("#my-input").value;
-    if(productNumber === "undefined"){
-       productNumber = 1;
+    var idSell = product.querySelector(".id_sell").innerText;
+    var maxProductNumber = product.querySelector(".product_quantity").innerText;
+    if (productNumber === "undefined") {
+      productNumber = 1;
     }
-    addCart(productName, productImg, productPrice, productId,productNumber);
+
+    if(JSON.parse(localStorage.getItem("items")) === null){
+      addCart(productName, productImg, productPrice, productId, productNumber,idSell,maxProductNumber);
+    }else if(JSON.parse(localStorage.getItem("items"))[0] !== undefined){
+         //Kiem tra so luong san pham
+         const localItems = JSON.parse(localStorage.getItem("items"));
+         localItems.map((data) => {
+           if(productId == data.id){
+             if (parseInt(parseInt(data.number) + parseInt(productNumber)) <= parseInt(maxProductNumber)) {
+                addCart(productName, productImg, productPrice, productId, productNumber,idSell,maxProductNumber);
+              }else{
+                Swal.fire({
+                  icon: "error",
+                  title: "Lỗi...",
+                  text: "Số lượng sản phẩm quý khách vừa chọn vượt quá số lượng hiện có! Vui lòng thử lại sau...",
+                });
+                return;
+              }
+           }
+         });
+    }else {
+      addCart(productName, productImg, productPrice, productId, productNumber,idSell, maxProductNumber);
+    }
+     
   });
 });
 
@@ -30,14 +56,24 @@ function getParent(element, selector) {
 }
 
 //Add Cart to Local Storage
-function addCart(productName, productImg, productPrice, productId, productNumber) {
+function addCart(
+  productName,
+  productImg,
+  productPrice,
+  productId,
+  productNumber,
+  idSell,
+  maxProductNumber
+) {
   let items = [];
   if (typeof Storage !== "undefined") {
     let item = {
       id: productId,
+      idSell: idSell,
       name: productName,
       price: productPrice,
       number: productNumber,
+      maxNumber: maxProductNumber,
       img: productImg,
     };
     if (JSON.parse(localStorage.getItem("items")) === null) {
@@ -142,6 +178,7 @@ function render() {
   cartTotal();
   numberOnCartIcon();
   deleteCart();
+  // checkChange();
 }
 
 function cartTotal() {
@@ -155,7 +192,7 @@ function cartTotal() {
     var priceValue = cartItem[i].querySelector(
       ".header_cart-item-price"
     ).innerHTML;
-    totalPrice = parseInt(InputValue) * parseInt(priceValue) * 1000;
+    totalPrice = parseInt(InputValue) * parseFloat(priceValue) * 1000;
     // totalB = totalPrice.toLocaleString('de-De');
     // totalPrice = totalPrice + totalA;
     totalPriceAll += totalPrice;
@@ -207,3 +244,36 @@ function deleteCart() {
     }
   }
 }
+
+
+
+function checkChange(){
+  if (JSON.parse(localStorage.getItem("items")) !== null ) {
+    var cartItem = document.querySelectorAll(".box_product");
+    for (var i = 0; i < cartItem.length; i++) {
+      var productCheckId = cartItem[i].querySelector(".product_id").innerText;
+      var productCheckIdSell = cartItem[i].querySelector(".id_sell").innerText;
+      var productCheckName = cartItem[i].querySelector(".product_name").innerText;
+      var productCheckImg = cartItem[i].querySelector(".img_book").src;
+      
+        const localItems = JSON.parse(localStorage.getItem("items"));
+          localItems.map((data) => {
+            if(productCheckId == data.id){
+              if ( parseInt(productCheckIdSell) !== parseInt(data.idSell) || productCheckName !== data.name || productCheckImg !== data.img) {
+                // Loc ID chi giu lai nhung id nao trong localStorage khac voi id lay tu du lieu tren
+              
+                let items = localItems.filter((data) => data.id !== productCheckId);
+                localStorage.setItem("items", JSON.stringify(items));
+               }
+              // Render lai gio hang
+              render();
+            }
+            
+          });
+      }
+  }else if(JSON.parse(localStorage.getItem("items")) === null){
+    return;
+  }
+  
+}
+

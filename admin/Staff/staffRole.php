@@ -2,8 +2,21 @@
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    include_once './alert.php';
-    $query_staff = mysqli_query($conn, "SELECT * from staff  ORDER BY id_staff ");
+    if(in_array("1", $_SESSION['roleStaff'], true)){
+        include_once './alert.php';
+        $query_staff = mysqli_query($conn, "SELECT * from staff  ORDER BY id_staff ");
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
+    }
     
 }
 ?>
@@ -48,7 +61,7 @@ if (!isset($_SESSION['username'])) {
                                         <?php 
                                            while ($row = mysqli_fetch_array($query_staff)) {
                                                $id_staff = $row['id_staff'];
-                                               $query_roledetails = mysqli_query($conn,"SELECT roledetails.*, role.name_role from roledetails inner join role on roledetails.id_role = role.id_role where id_staff = '$id_staff'");
+                                               $query_roledetails = mysqli_query($conn,"SELECT roledetails.*, rolestaff.name_role from roledetails inner join rolestaff on roledetails.id_role = rolestaff.id_role where id_staff = '$id_staff'");
                                               
                                                
                                         ?>
@@ -69,7 +82,7 @@ if (!isset($_SESSION['username'])) {
                                                 </td>
                                                    <?php }?>
                                                    <?php  
-                                                          $query_role = mysqli_query($conn,"SELECT * from role WHERE id_role NOT IN ( '" . implode( "', '" , $id_role ) . "' )"); 
+                                                          $query_role = mysqli_query($conn,"SELECT * from rolestaff WHERE id_role NOT IN ( '" . implode( "', '" , $id_role ) . "' )"); 
                                                           if(mysqli_num_rows($query_role) > 0){
                                                           while($row_role = mysqli_fetch_array($query_role)){
     

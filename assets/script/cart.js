@@ -26,5 +26,25 @@ function showCart() {
       }, 1000);
     }
   };
-  
   removeCart.addEventListener("click",closeCartFunction);
+
+const userWrap = document.querySelector(".user_wrap");
+function showAccountInfo(){
+  userWrap.classList.toggle("hidden");
+  userWrap.classList.toggle("userWrapActive");
+}
+
+const closeAccountInfo = function(){
+  userWrap.classList.toggle("hidden");
+  userWrap.classList.toggle("userWrapActive");
+}
+
+document.addEventListener('keydown', function (e) {
+  // console.log(e.key);
+
+  if (e.key === 'Escape' && !userWrap.classList.contains('hidden') ) {
+    closeAccountInfo();
+  }
+});
+
+

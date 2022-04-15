@@ -5,80 +5,57 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    $id_selling = $_REQUEST['id'];
-    $query = mysqli_query($conn,"SELECT * from sellingprice where id_sell='$id_selling'");
-    $row =mysqli_fetch_array($query);
-    $id_import = $row['id_import'];
-    $query_import = mysqli_query($conn,"SELECT * from importproduct where id_import = '$id_import' ");
-    $id_product = $row['id_product'];
-    $sell_price = $row['selling_price'];
-    $query_product = mysqli_query($conn,"SELECT * from product where id_product = '$id_product'");
-    if(isset($_POST['selling_price'])){
-        if($_POST['selling_price'] === $sell_price){
-            $date_start =  $_POST['dateStart'];
-            $date_end = $_POST['dateEnd'];
-            $sql = "UPDATE sellingprice SET date_start = '$date_start',
-                                            date_end = '$date_end' where id_sell = '$id_selling'";
-            if(mysqli_query($conn,$sql)){
-                $_SESSION['status'] = "Thêm Thành Công!";
-                $_SESSION['status_code']= "success";
-               $url = "index.php?page_layout=sellingprice&id=" .$id_product;
-               if(headers_sent()){
-                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-               }else{
-                    header ("location: $url");
-                    die();
-               }
-               
-             }else {
-                $_SESSION['status'] = "Thêm Thất Bại!";
-                $_SESSION['status_code']= "error";
-                $conn -> rollback();
-                $url = "index.php?page_layout=sellingprice&id=" .$id_product;
-                if(headers_sent()){
-                    die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-                }else{
-                     header ("location: $url");
-                     die();
+    if(in_array("3", $_SESSION['roleStaff'], true)){
+        $id_selling = $_REQUEST['id'];
+        $query = mysqli_query($conn,"SELECT * from sellingprice where id_sell='$id_selling'");
+        $row =mysqli_fetch_array($query);
+        $id_import = $row['id_import'];
+        $query_import = mysqli_query($conn,"SELECT * from importproduct where id_import = '$id_import' ");
+        $id_product = $row['id_product'];
+        $sell_price = $row['selling_price'];
+        $query_product = mysqli_query($conn,"SELECT * from product where id_product = '$id_product'");
+        if(isset($_POST['dateEnd'])){
+                $date_end = $_POST['dateEnd'];
+                $sql = "UPDATE sellingprice SET date_end = '$date_end' where id_sell = '$id_selling'";
+                if(mysqli_query($conn,$sql)){
+                    $_SESSION['status'] = "Cập Nhật Thành Công!";
+                    $_SESSION['status_code']= "success";
+                   $url = "index.php?page_layout=sellingprice&id=" .$id_product;
+                   if(headers_sent()){
+                       die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                   }else{
+                        header ("location: $url");
+                        die();
+                   }
+                   
+                 }else {
+                    $_SESSION['status'] = "Cập Nhật Thất Bại!";
+                    $_SESSION['status_code']= "error";
+                    $conn -> rollback();
+                    $url = "index.php?page_layout=sellingprice&id=" .$id_product;
+                    if(headers_sent()){
+                        die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+                    }else{
+                         header ("location: $url");
+                         die();
+                    }
                 }
-            }
+          
+            
+        } 
+        mysqli_close($conn);
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
         }else{
-            $selling_price = $_POST['selling_price'];
-            $date_start = $_POST['dateStart'];
-            if(isset($_POST['dateEnd'])){
-                $dateEnd = $_POST['dateEnd'];
-            }else{
-                $dateEnd = "";
-            }
-            $sql = "";
-            $sql .= " INSERT into sellingprice (id_product,id_import,selling_price,date_start,date_end) values ('$id_product','$id_import','$selling_price','$date_start','$date_end');";
-            $sql .= " UPDATE sellingprice SET date_end = '$date_start' where id_sell = '$id_selling';";
-            if(mysqli_multi_query($conn,$sql)){
-               $_SESSION['status'] = "Thêm Thành Công!";
-               $_SESSION['status_code']= "success";
-              $url = "index.php?page_layout=sellingprice&id=" .$id_product;
-              if(headers_sent()){
-                  die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-              }else{
-                   header ("location: $url");
-                   die();
-              }
-            }else {
-               $_SESSION['status'] = "Thêm Thất Bại!";
-               $_SESSION['status_code']= "error";
-               $conn -> rollback();
-               $url = "index.php?page_layout=sellingprice&id=" .$id_product;
-               if(headers_sent()){
-                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-               }else{
-                    header ("location: $url");
-                    die();
-               }
-               
-           }
+            header ("location: $url");
+            die();
         }
-    } 
-    mysqli_close($conn);
+    }
 }
 
 ?>
@@ -98,7 +75,7 @@ if (!isset($_SESSION['username'])) {
                                 <div class="card-body">
                                           <div class="form-group">
                                               <label for="InputTypeGroup"> Sản Phẩm</label>
-                                              <select class="form-select form-control" aria-label="Default select example" id="id_product" name="id_product" >
+                                              <select class="form-select form-control" aria-label="Default select example" id="id_product" name="id_product" disabled>
                                                   <?php $row_product = mysqli_fetch_array($query_product); ?>
                                                  <option value="<?php echo $row_product['id_product']; ?>"><?php echo $row_product['name_product'];?></option>
                                                </select>
@@ -107,7 +84,7 @@ if (!isset($_SESSION['username'])) {
                                          
                                          <div class="form-group">
                                            <label for="inputName" style="margin-bottom:20px">Mã Nhập Hàng</label>
-                                           <select class="form-select form-control" aria-label="Default select example" id="id_import" name="id_import">
+                                           <select class="form-select form-control" aria-label="Default select example" id="id_import" name="id_import" disabled>
                                                 <?php 
                                                         $row_import = mysqli_fetch_array($query_import);
                                                         
@@ -122,26 +99,23 @@ if (!isset($_SESSION['username'])) {
                                        
                                          <div class="form-group">
                                            <label for="inputName" style="margin-bottom:20px">Nhập Giá Bán</label>
-                                           <input type="text" class="form-control" id="selling_price" name="selling_price"  placeholder="Enter Price" value = "<?php echo $row['selling_price'];?>">
+                                           <input type="text" class="form-control" id="selling_price" name="selling_price"  placeholder="Enter Price" value = "<?php echo $row['selling_price'];?>" disabled>
                                            <span class="form-group__message"></span>
                                          </div>
                                          <div class="form-group">
                                            <label for="inputName" style="margin-bottom:20px">Chọn Ngày Bắt Đầu Bán Với Giá Vừa Nhập</label>
-                                           <input type="date" class="form-control" id="dateStart" name="dateStart"  style="width:12%" value = "<?php echo $row['date_start'];?>">
+                                           <input type="date" class="form-control" id="dateStart" name="dateStart"  style="width:12%" value = "<?php echo $row['date_start'];?>" disabled> 
                                            <span class="form-group__message"></span>
                                          </div>
                                          <div class="form-group">
                                            <label for="inputName" style="margin-bottom:20px">Chọn Ngày Kết Thúc Bán Với Giá Vừa Nhập</label>
-                                           <input type="date" class="form-control" id="dateEnd" name="dateEnd"  style="width:12%" value = "<?php echo $row['date_end'];?>">
+                                           <input type="date" class="form-control" id="dateEnd" name="dateEnd"  style="width:12%" value = "<?php echo $row['date_end'];?> ">
                                            <span class="form-group__message"></span>
                                          </div>
-                                         <?php  if($row['date_end'] == 0) {?>
+                                         
                                          <a href = "index.php?page_layout=sellingprice&id=<?php echo $id_product?>" class="btn btn-primary " style="margin-top:12px"><i class="fas fa-arrow-left" style="margin-right:6px"></i>Back</a>
                                          <button type="submit" class="btn btn-primary" style="background-color: #212529;margin-top:12px;">Submit</button>
-                                         <?php }else {?>
-                                            <a href = "index.php?page_layout=sellingprice&id=<?php echo $id_product?>" class="btn btn-primary " style="margin-top:12px"><i class="fas fa-arrow-left" style="margin-right:6px"></i>Back</a>
-                                            <button type="submit" class="btn btn-secondary" style="margin-top:12px;pointer-events: none;">Submit</button>
-                                          <?php }?>
+                                        
                                 </div>
                     </div>
                 </form>
@@ -157,9 +131,23 @@ if (!isset($_SESSION['username'])) {
             formGroupSelector: '.form-group',
             errorSelector: '.form-group__message',
             rules: [
-                Validator.isRequired('#id_import'),
-               Validator.isRequired('#selling_price'),
-               Validator.isRequired('#id_product')
+               Validator.isRequired('#dateEnd')
+             
             ]
         });
+        var today = new Date();
+        var dd = today.getDate() + 1;
+        var mm = today.getMonth() + 1; //January is 0!
+        var yyyy = today.getFullYear();
+        
+        if (dd < 10) {
+           dd = '0' + dd;
+        }
+        
+        if (mm < 10) {
+           mm = '0' + mm;
+           
+        } 
+        today = yyyy + '-' + mm + '-' + dd;
+        document.getElementById("dateEnd").setAttribute("min", today);
     </script>

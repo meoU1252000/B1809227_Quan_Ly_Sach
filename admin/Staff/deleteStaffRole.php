@@ -5,45 +5,58 @@ include_once './config.php';
 if (!isset($_SESSION['username'])) {
     header('location: ./login.php');
 }else{
-    $id_staff = $_REQUEST['id'];
-    $query_staff = mysqli_query($conn,"SELECT * from staff where id_staff = '$id_staff'");
-    $row_staff = mysqli_fetch_array($query_staff);
-    $query_role = mysqli_query($conn, "SELECT * from roledetails where id_staff = '$id_staff'");
-    if(isset($_POST['delete_role'])){
-        $i = 0;
-        $role_delete= array();
-        foreach($_POST['id_role'] as $role){
-            $role_delete[$i]=$role;
-            $i=$i+1;
-        }
-        $sql = "";
-        for($i = 0; $i < count($role_delete) ; $i++){
-            $sql .= " DELETE from roledetails where id_staff = '$id_staff' and id_role = '".$role_delete[$i]."';";
-        }
-        
-        if(mysqli_multi_query($conn,$sql)){
-            $_SESSION['status'] = "Thêm Thành Công!";
-            $_SESSION['status_code']= "success";
-            $url = "index.php?page_layout=staffRole";
-            if(headers_sent()){
-               die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-           }else{
-                header ("location: $url");
-                die();
+    if(in_array("1", $_SESSION['roleStaff'], true)){
+        $id_staff = $_REQUEST['id'];
+        $query_staff = mysqli_query($conn,"SELECT * from staff where id_staff = '$id_staff'");
+        $row_staff = mysqli_fetch_array($query_staff);
+        $query_role = mysqli_query($conn, "SELECT * from roledetails where id_staff = '$id_staff'");
+        if(isset($_POST['delete_role'])){
+            $i = 0;
+            $role_delete= array();
+            foreach($_POST['id_role'] as $role){
+                $role_delete[$i]=$role;
+                $i=$i+1;
+            }
+            $sql = "";
+            for($i = 0; $i < count($role_delete) ; $i++){
+                $sql .= " DELETE from roledetails where id_staff = '$id_staff' and id_role = '".$role_delete[$i]."';";
+            }
+            
+            if(mysqli_multi_query($conn,$sql)){
+                $_SESSION['status'] = "Thêm Thành Công!";
+                $_SESSION['status_code']= "success";
+                $url = "index.php?page_layout=staffRole";
+                if(headers_sent()){
+                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+               }else{
+                    header ("location: $url");
+                    die();
+               }
+            }else {
+               $_SESSION['status'] = "Thêm Thất Bại!";
+               $_SESSION['status_code']= "error";
+               $conn -> rollback();
+               $url = "index.php?page_layout=staffRole";
+               if(headers_sent()){
+                   die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+               }else{
+                    header ("location: $url");
+                    die();
+               }
+              // echo "Error: " . $sql . "<br>" . mysqli_error($conn);
            }
-        }else {
-           $_SESSION['status'] = "Thêm Thất Bại!";
-           $_SESSION['status_code']= "error";
-           $conn -> rollback();
-           $url = "index.php?page_layout=staffRole";
-           if(headers_sent()){
-               die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
-           }else{
-                header ("location: $url");
-                die();
-           }
-          // echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-       }
+        }
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Bạn không có quyền truy cập vào trang này")';
+        echo '</script>';
+        $url = "index.php";
+        if(headers_sent()){
+            die('<script type ="text/javascript">window.location.href="'.$url.'" </script>');
+        }else{
+            header ("location: $url");
+            die();
+        }
     }
 
 }
@@ -77,7 +90,7 @@ if (!isset($_SESSION['username'])) {
                                            <?php 
                                                while($row_role = mysqli_fetch_array($query_role)){
                                                    $id_role = $row_role['id_role'];
-                                                   $query_nameRole = mysqli_query($conn,"SELECT * from role where id_role = '$id_role'");
+                                                   $query_nameRole = mysqli_query($conn,"SELECT * from rolestaff where id_role = '$id_role'");
                                                    $row_nameRole = mysqli_fetch_array($query_nameRole);
                                                
                                             ?>
